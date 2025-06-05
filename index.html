@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scribe Checker - AI-Powered Medical Notes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📝 Scribe Checker – AI-Powered Medical Notes</h1>
+      <p class="subtitle">Transform patient transcripts into structured clinical notes</p>
+    </header>
+
+    <main>
+      <div class="card input-card">
+        <form id="transcript-form">
+          <div class="form-group">
+            <label for="transcript">Patient Transcript</label>
+            <textarea 
+              id="transcript" 
+              name="transcript" 
+              rows="10" 
+              placeholder="Paste patient transcript here..."
+              required></textarea>
+          </div>
+          <button type="submit" id="generate-btn" class="btn">
+            <span>Generate Note</span>
+            <div class="spinner" id="spinner"></div>
+          </button>
+        </form>
+      </div>
+
+      <div id="error-container" class="alert error hidden"></div>
+
+      <div id="results-container" class="hidden">
+        <div class="card results-card">
+          <h2>Clinical Note</h2>
+          
+          <div class="section">
+            <h3>Chief Complaint</h3>
+            <div id="chief-complaint" class="content"></div>
+          </div>
+          
+          <div class="section">
+            <h3>History of Present Illness</h3>
+            <div id="history" class="content"></div>
+          </div>
+          
+          <div class="section">
+            <h3>Assessment</h3>
+            <div id="assessment" class="content"></div>
+          </div>
+          
+          <div class="section">
+            <h3>Plan</h3>
+            <div id="plan" class="content"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Scribe Checker | AI-Powered Medical Documentation</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
