@@ -11,6 +11,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const assessmentEl = document.getElementById("assessment")
   const planEl = document.getElementById("plan")
 
+  // API configuration
+  const API_CONFIG = {
+    baseUrl: "https://scribe-checker.onrender.com",
+    endpoint: "/process_transcript",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault()
 
@@ -29,27 +38,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       // Make API request
-      const response = await fetch("https://scribe-checker.onrender.com/process_transcript", {
+      const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoint}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ transcript }),
+        headers: API_CONFIG.headers,
+        body: JSON.stringify({ transcript })
       })
 
-      // Check if response is ok
-      if (!response.ok) {
-        throw new Error(`Server responded with status: ${response.status}`)
+      // Handle different response statuses
+      if (response.status === 429) {
+        throw new Error("Rate limit exceeded. Please try again later.")
+      } else if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `Server error: ${response.status}`)
       }
 
       // Parse response
       const data = await response.json()
 
+      // Validate response data
+      if (!data || typeof data !== "object") {
+        throw new Error("Invalid response format from server")
+      }
+
       // Display results
       displayResults(data)
     } catch (error) {
       console.error("Error processing transcript:", error)
-      showError(`Failed to process transcript: ${error.message || "Unknown error"}`)
+      showError(error.message || "Failed to process transcript. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -82,16 +97,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function displayResults(data) {
-    // Format and display each section
-    chiefComplaintEl.textContent = data.chief_complaint || "None provided"
-    historyEl.textContent = data.history_of_present_illness || "None provided"
-    assessmentEl.textContent = data.assessment || "None provided"
-    planEl.textContent = data.plan || "None provided"
+    try {
+      // Format and display each section with fallbacks
+      chiefComplaintEl.textContent = data.chief_complaint || "Not specified"
+      historyEl.textContent = data.history_of_present_illness || "Not specified"
+      assessmentEl.textContent = data.assessment || "Not specified"
+      planEl.textContent = data.plan || "Not specified"
 
-    // Show results container
-    resultsContainer.classList.remove("hidden")
+      // Show results container
+      resultsContainer.classList.remove("hidden")
 
-    // Scroll to results
-    resultsContainer.scrollIntoView({ behavior: "smooth" })
+      // Scroll to results with smooth behavior
+      resultsContainer.scrollIntoView({ behavior: "smooth", block: "start" })
+    } catch (error) {
+      console.error("Error displaying results:", error)
+      showError("Error displaying results. Please try again.")
+    }
   }
 })
