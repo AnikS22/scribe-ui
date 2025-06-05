@@ -1,117 +1,96 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("transcript-form")
-  const generateBtn = document.getElementById("generate-btn")
-  const spinner = document.getElementById("spinner")
-  const errorContainer = document.getElementById("error-container")
-  const resultsContainer = document.getElementById("results-container")
+  const form = document.getElementById("transcript-form");
+  const generateBtn = document.getElementById("generate-btn");
+  const spinner = document.getElementById("spinner");
+  const errorContainer = document.getElementById("error-container");
+  const resultsContainer = document.getElementById("results-container");
 
-  // Result section elements
-  const chiefComplaintEl = document.getElementById("chief-complaint")
-  const historyEl = document.getElementById("history")
-  const assessmentEl = document.getElementById("assessment")
-  const planEl = document.getElementById("plan")
+  const chiefComplaintEl = document.getElementById("chief-complaint");
+  const historyEl = document.getElementById("history");
+  const assessmentEl = document.getElementById("assessment");
+  const planEl = document.getElementById("plan");
 
-  // API configuration
-  const API_CONFIG = {
-    baseUrl: "https://scribe-checker.onrender.com",
-    endpoint: "/process_transcript",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  }
+  const API_ENDPOINT = "/api/relay";
 
   form.addEventListener("submit", async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    // Get the transcript text
-    const transcript = document.getElementById("transcript").value.trim()
+    const transcript = document.getElementById("transcript").value.trim();
 
     if (!transcript) {
-      showError("Please enter a patient transcript.")
-      return
+      showError("Please enter a patient transcript.");
+      return;
     }
 
-    // Show loading state
-    setLoading(true)
-    hideError()
-    hideResults()
+    setLoading(true);
+    hideError();
+    hideResults();
 
     try {
-      // Make API request
-      const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoint}`, {
+      const response = await fetch(API_ENDPOINT, {
         method: "POST",
-        headers: API_CONFIG.headers,
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ transcript })
-      })
+      });
 
-      // Handle different response statuses
       if (response.status === 429) {
-        throw new Error("Rate limit exceeded. Please try again later.")
+        throw new Error("Rate limit exceeded. Please try again later.");
+      } else if (response.status === 401) {
+        throw new Error("Unauthorized. Please check your API key.");
       } else if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.detail || `Server error: ${response.status}`)
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Server error: ${response.status}`);
       }
 
-      // Parse response
-      const data = await response.json()
+      const data = await response.json();
 
-      // Validate response data
       if (!data || typeof data !== "object") {
-        throw new Error("Invalid response format from server")
+        throw new Error("Invalid response format from server.");
       }
 
-      // Display results
-      displayResults(data)
+      displayResults(data);
     } catch (error) {
-      console.error("Error processing transcript:", error)
-      showError(error.message || "Failed to process transcript. Please try again.")
+      console.error("❌ Transcript processing failed:", error);
+      showError(error.message || "Failed to process transcript. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  })
+  });
 
   function setLoading(isLoading) {
-    if (isLoading) {
-      generateBtn.disabled = true
-      spinner.style.display = "block"
-      generateBtn.querySelector("span").textContent = "Processing..."
-    } else {
-      generateBtn.disabled = false
-      spinner.style.display = "none"
-      generateBtn.querySelector("span").textContent = "Generate Note"
-    }
+    generateBtn.disabled = isLoading;
+    spinner.style.display = isLoading ? "block" : "none";
+    generateBtn.querySelector("span").textContent = isLoading ? "Processing..." : "Generate Note";
   }
 
   function showError(message) {
-    errorContainer.textContent = message
-    errorContainer.classList.remove("hidden")
+    errorContainer.textContent = message;
+    errorContainer.classList.remove("hidden");
   }
 
   function hideError() {
-    errorContainer.classList.add("hidden")
-    errorContainer.textContent = ""
+    errorContainer.textContent = "";
+    errorContainer.classList.add("hidden");
   }
 
   function hideResults() {
-    resultsContainer.classList.add("hidden")
+    resultsContainer.classList.add("hidden");
   }
 
   function displayResults(data) {
     try {
-      // Format and display each section with fallbacks
-      chiefComplaintEl.textContent = data.chief_complaint || "Not specified"
-      historyEl.textContent = data.history_of_present_illness || "Not specified"
-      assessmentEl.textContent = data.assessment || "Not specified"
-      planEl.textContent = data.plan || "Not specified"
+      chiefComplaintEl.textContent = data.chief_complaint || "Not specified";
+      historyEl.textContent = data.history_of_present_illness || "Not specified";
+      assessmentEl.textContent = data.assessment || "Not specified";
+      planEl.textContent = data.plan || "Not specified";
 
-      // Show results container
-      resultsContainer.classList.remove("hidden")
-
-      // Scroll to results with smooth behavior
-      resultsContainer.scrollIntoView({ behavior: "smooth", block: "start" })
+      resultsContainer.classList.remove("hidden");
+      resultsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
-      console.error("Error displaying results:", error)
-      showError("Error displaying results. Please try again.")
+      console.error("⚠️ Display error:", error);
+      showError("Error displaying results. Please try again.");
     }
   }
-})
+});
