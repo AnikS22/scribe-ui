@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const spinner = document.getElementById("spinner")
   const errorContainer = document.getElementById("error-container")
   const resultsContainer = document.getElementById("results-container")
+  const rawJsonContainer = document.getElementById("raw-json")
 
   // Result section elements
   const chiefComplaintEl = document.getElementById("chief-complaint")
@@ -13,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // API configuration
   const API_CONFIG = {
-    baseUrl: "/api",  // This will be proxied through Vercel
+    baseUrl: "/api",  // Using Vercel relay endpoint
     endpoint: "/relay",
     headers: {
       "Content-Type": "application/json"
@@ -35,9 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
     setLoading(true)
     hideError()
     hideResults()
+    hideRawJson()
 
     try {
-      // Make API request
+      // Make API request through relay
       const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoint}`, {
         method: "POST",
         headers: API_CONFIG.headers,
@@ -60,8 +62,11 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Invalid response format from server")
       }
 
-      // Display results
+      // Display formatted results
       displayResults(data)
+
+      // Display raw JSON
+      displayRawJson(data)
     } catch (error) {
       console.error("Error processing transcript:", error)
       showError(error.message || "Failed to process transcript. Please try again.")
@@ -94,6 +99,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function hideResults() {
     resultsContainer.classList.add("hidden")
+  }
+
+  function hideRawJson() {
+    if (rawJsonContainer) {
+      rawJsonContainer.classList.add("hidden")
+    }
   }
 
   function displayResults(data) {
@@ -130,6 +141,19 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error("Error displaying results:", error)
       showError("Error displaying results. Please try again.")
+    }
+  }
+
+  function displayRawJson(data) {
+    if (!rawJsonContainer) return
+
+    try {
+      // Format JSON with proper indentation
+      const formattedJson = JSON.stringify(data, null, 2)
+      rawJsonContainer.textContent = formattedJson
+      rawJsonContainer.classList.remove("hidden")
+    } catch (error) {
+      console.error("Error displaying raw JSON:", error)
     }
   }
 })
