@@ -249,3 +249,46 @@ footer {
   overflow-y: auto;
   margin: 0;
 }
+
+.results-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.main-panel {
+  min-width: 0; /* Prevents overflow in grid */
+}
+
+.side-panel {
+  min-width: 0; /* Prevents overflow in grid */
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.raw-response {
+  background-color: #f8f9fa;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+  margin: 0;
+}
+
+/* Responsive layout */
+@media (max-width: 1024px) {
+  .results-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .side-panel {
+    max-height: none;
+  }
+}

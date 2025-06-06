@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorContainer = document.getElementById("error-container")
   const resultsContainer = document.getElementById("results-container")
   const rawJsonContainer = document.getElementById("raw-json")
+  const gptResponseContainer = document.getElementById("gpt-response")
 
   // Result section elements
   const chiefComplaintEl = document.getElementById("chief-complaint")
@@ -36,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setLoading(true)
     hideError()
     hideResults()
-    hideRawJson()
+    hideRawResponses()
 
     try {
       // Make API request through relay
@@ -65,8 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // Display formatted results
       displayResults(data)
 
-      // Display raw JSON
-      displayRawJson(data)
+      // Display raw responses
+      displayRawResponses(data)
     } catch (error) {
       console.error("Error processing transcript:", error)
       showError(error.message || "Failed to process transcript. Please try again.")
@@ -101,9 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
     resultsContainer.classList.add("hidden")
   }
 
-  function hideRawJson() {
+  function hideRawResponses() {
     if (rawJsonContainer) {
       rawJsonContainer.classList.add("hidden")
+    }
+    if (gptResponseContainer) {
+      gptResponseContainer.classList.add("hidden")
     }
   }
 
@@ -144,16 +148,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function displayRawJson(data) {
-    if (!rawJsonContainer) return
-
+  function displayRawResponses(data) {
     try {
-      // Format JSON with proper indentation
-      const formattedJson = JSON.stringify(data, null, 2)
-      rawJsonContainer.textContent = formattedJson
-      rawJsonContainer.classList.remove("hidden")
+      // Display API response
+      if (rawJsonContainer) {
+        const formattedJson = JSON.stringify(data, null, 2)
+        rawJsonContainer.textContent = formattedJson
+        rawJsonContainer.classList.remove("hidden")
+      }
+
+      // Display GPT response if available
+      if (gptResponseContainer && data.gpt_response) {
+        const formattedGptResponse = typeof data.gpt_response === 'string' 
+          ? data.gpt_response 
+          : JSON.stringify(data.gpt_response, null, 2)
+        gptResponseContainer.textContent = formattedGptResponse
+        gptResponseContainer.classList.remove("hidden")
+      }
     } catch (error) {
-      console.error("Error displaying raw JSON:", error)
+      console.error("Error displaying raw responses:", error)
     }
   }
 })

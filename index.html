@@ -35,39 +35,52 @@
       <div id="error-container" class="alert error hidden"></div>
 
       <div id="results-container" class="hidden">
-        <div class="card results-card">
-          <h2>Clinical Note</h2>
-          
-          <div class="section">
-            <h3>Chief Complaint</h3>
-            <div id="chief-complaint" class="content"></div>
-          </div>
-          
-          <div class="section">
-            <h3>History of Present Illness</h3>
-            <div id="history" class="content"></div>
-          </div>
-          
-          <div class="section">
-            <h3>Assessment</h3>
-            <div id="assessment" class="content"></div>
-          </div>
-          
-          <div class="section">
-            <h3>Plan</h3>
-            <div id="plan" class="content"></div>
-          </div>
+        <div class="results-layout">
+          <!-- Main content panel -->
+          <div class="card results-card main-panel">
+            <h2>Clinical Note</h2>
+            
+            <div class="section">
+              <h3>Chief Complaint</h3>
+              <div id="chief-complaint" class="content"></div>
+            </div>
+            
+            <div class="section">
+              <h3>History of Present Illness</h3>
+              <div id="history" class="content"></div>
+            </div>
+            
+            <div class="section">
+              <h3>Assessment</h3>
+              <div id="assessment" class="content"></div>
+            </div>
+            
+            <div class="section">
+              <h3>Plan</h3>
+              <div id="plan" class="content"></div>
+            </div>
 
-          <div class="section">
-            <div id="cpt-results" class="mt-6 text-sm bg-gray-100 p-4 rounded-lg shadow-sm">
-              <h2 class="text-lg font-semibold mb-2">Recommended CPT Codes</h2>
-              <!-- JS will fill this -->
+            <div class="section">
+              <div id="cpt-results" class="mt-6 text-sm bg-gray-100 p-4 rounded-lg shadow-sm">
+                <h2 class="text-lg font-semibold mb-2">Recommended CPT Codes</h2>
+                <!-- JS will fill this -->
+              </div>
             </div>
           </div>
 
-          <div class="section">
-            <h3>Raw API Response</h3>
-            <pre id="raw-json" class="raw-json hidden"></pre>
+          <!-- Side panel for raw responses -->
+          <div class="card results-card side-panel">
+            <h2>Raw Responses</h2>
+            
+            <div class="section">
+              <h3>GPT Response</h3>
+              <pre id="gpt-response" class="raw-response hidden"></pre>
+            </div>
+
+            <div class="section">
+              <h3>API Response</h3>
+              <pre id="raw-json" class="raw-response hidden"></pre>
+            </div>
           </div>
         </div>
       </div>
