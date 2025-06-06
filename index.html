@@ -18,17 +18,28 @@
         <form id="transcript-form">
           <div class="form-group">
             <label for="audio-file">Upload Audio File</label>
-            <div class="file-upload-container">
-              <input 
-                type="file" 
-                id="audio-file" 
-                name="audio-file" 
-                accept="audio/*"
-                class="file-input"
-              />
-              <div class="file-upload-info">
-                <p class="text-sm text-gray-600">Supported formats: MP3, WAV, M4A</p>
-                <p class="text-sm text-gray-600">Max file size: 25MB</p>
+            <div class="file-upload-container" id="drop-zone">
+              <div class="file-upload-content">
+                <div class="file-upload-icon">🎙️</div>
+                <p class="file-upload-text">Drag and drop your audio file here, or</p>
+                <label for="audio-file" class="file-upload-button">Choose File</label>
+                <input 
+                  type="file" 
+                  id="audio-file" 
+                  name="audio-file" 
+                  accept="audio/*"
+                  class="file-input"
+                />
+                <div class="file-upload-info">
+                  <p class="text-sm text-gray-600">Supported formats: MP3, WAV, M4A</p>
+                  <p class="text-sm text-gray-600">Max file size: 25MB</p>
+                </div>
+              </div>
+              <div class="file-upload-preview hidden">
+                <div class="file-info">
+                  <span class="file-name"></span>
+                  <button type="button" class="remove-file" aria-label="Remove file">×</button>
+                </div>
               </div>
             </div>
           </div>
