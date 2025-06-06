@@ -364,3 +364,89 @@ footer {
   margin-bottom: 1rem;
   font-size: 1.25rem;
 }
+
+/* ICD Codes */
+.icd-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.icd-code {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.9rem;
+  border: 1px solid var(--primary);
+}
+
+/* LCD Validation */
+.lcd-box {
+  background-color: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.lcd-box-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lcd-code {
+  font-size: 1.1rem;
+  color: var(--primary-dark);
+  margin: 0;
+}
+
+.lcd-status {
+  margin: 0;
+}
+
+.requirements {
+  margin-top: 0.5rem;
+}
+
+.requirements-list {
+  list-style: disc;
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0;
+}
+
+.requirements-list li {
+  margin-bottom: 0.25rem;
+  color: var(--text);
+}
+
+.requirements-list li:last-child {
+  margin-bottom: 0;
+}
+
+.no-data {
+  text-align: center;
+  color: var(--text-light);
+  font-style: italic;
+  padding: 1rem;
+  margin: 0;
+}
+
+/* Pain Rating */
+#pain-rating p {
+  margin: 0.5rem 0;
+}
+
+#pain-rating p:first-child {
+  margin-top: 0;
+}
+
+#pain-rating p:last-child {
+  margin-bottom: 0;
+}

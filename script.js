@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const historyEl = document.getElementById("history")
   const assessmentEl = document.getElementById("assessment")
   const planEl = document.getElementById("plan")
+  const painRatingEl = document.getElementById("pain-rating")
+  const followUpEl = document.getElementById("follow-up")
+  const icdCodesEl = document.getElementById("icd-codes")
+  const lcdValidationEl = document.getElementById("lcd-validation")
 
   // API configuration
   const API_CONFIG = {
@@ -100,6 +104,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function hideResults() {
     resultsContainer.classList.add("hidden")
+    // Clear all content
+    chiefComplaintEl.textContent = ""
+    historyEl.textContent = ""
+    assessmentEl.textContent = ""
+    planEl.textContent = ""
+    painRatingEl.textContent = ""
+    followUpEl.textContent = ""
+    icdCodesEl.innerHTML = ""
+    lcdValidationEl.innerHTML = ""
   }
 
   function hideRawResponses() {
@@ -118,6 +131,21 @@ document.addEventListener("DOMContentLoaded", () => {
       historyEl.textContent = data.history_of_present_illness || "Not specified"
       assessmentEl.textContent = data.assessment || "Not specified"
       planEl.textContent = data.plan || "Not specified"
+
+      // Display pain rating if available
+      if (data.pain_rating) {
+        const painLevel = data.pain_rating.level || "Not specified"
+        const painLocation = data.pain_rating.location || "Not specified"
+        painRatingEl.innerHTML = `
+          <p><strong>Pain Level:</strong> ${painLevel}</p>
+          <p><strong>Location:</strong> ${painLocation}</p>
+        `
+      } else {
+        painRatingEl.textContent = "Not specified"
+      }
+
+      // Display follow-up instructions if available
+      followUpEl.textContent = data.follow_up_instructions || "Not specified"
 
       // Display CPT codes
       const cptContainer = document.getElementById("cpt-results")
@@ -170,6 +198,80 @@ document.addEventListener("DOMContentLoaded", () => {
         })
       } else {
         cptContainer.innerHTML = '<p class="no-cpt">No CPT codes recommended</p>'
+      }
+
+      // Display ICD codes
+      const icdContainer = document.getElementById("icd-codes")
+      icdContainer.innerHTML = "" // Clear previous
+
+      if (Array.isArray(data.icd_codes) && data.icd_codes.length > 0) {
+        const icdList = document.createElement("ul")
+        icdList.className = "icd-list"
+        data.icd_codes.forEach(code => {
+          const li = document.createElement("li")
+          li.className = "icd-code"
+          li.textContent = code
+          icdList.appendChild(li)
+        })
+        icdContainer.appendChild(icdList)
+      } else {
+        icdContainer.innerHTML = '<p class="no-data">No ICD codes provided</p>'
+      }
+
+      // Display LCD validation results
+      const lcdContainer = document.getElementById("lcd-validation")
+      lcdContainer.innerHTML = "" // Clear previous
+
+      if (Array.isArray(data.lcd_validation) && data.lcd_validation.length > 0) {
+        data.lcd_validation.forEach(lcd => {
+          const item = document.createElement("div")
+          item.className = "lcd-box"
+
+          // Determine status class and icon
+          let statusClass = "text-gray-600"
+          let statusIcon = "❓"
+          
+          switch(lcd.status?.toLowerCase()) {
+            case "meets":
+              statusClass = "text-green-600"
+              statusIcon = "✅"
+              break
+            case "partially meets":
+              statusClass = "text-yellow-600"
+              statusIcon = "⚠️"
+              break
+            case "does not meet":
+              statusClass = "text-red-600"
+              statusIcon = "❌"
+              break
+          }
+
+          // Create requirements list
+          const requirementsList = Array.isArray(lcd.requirements) && lcd.requirements.length > 0
+            ? `<ul class="requirements-list">
+                ${lcd.requirements.map(req => `<li>${req}</li>`).join("")}
+               </ul>`
+            : "<p>No specific requirements listed</p>"
+
+          item.innerHTML = `
+            <div class="lcd-box-content">
+              <p class="lcd-code">
+                <strong>LCD Code:</strong> ${lcd.lcd_code || "Not specified"}
+              </p>
+              <p class="lcd-status">
+                <strong>Status:</strong> 
+                ${statusIcon} <span class="${statusClass}">${lcd.status || "Not Evaluated"}</span>
+              </p>
+              <div class="requirements">
+                <strong>Requirements:</strong>
+                ${requirementsList}
+              </div>
+            </div>
+          `
+          lcdContainer.appendChild(item)
+        })
+      } else {
+        lcdContainer.innerHTML = '<p class="no-data">No LCD validation results available</p>'
       }
 
       // Show results container
