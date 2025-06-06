@@ -126,12 +126,45 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Array.isArray(data.recommended_cpt_codes)) {
         data.recommended_cpt_codes.forEach((cpt) => {
           const item = document.createElement("div")
-          item.className = "cpt-code-item"
+          item.className = "cpt-box"
+          
+          // Determine LCD status class
+          let lcdStatusClass = "text-gray-600"
+          let lcdStatusIcon = "❓"
+          
+          if (cpt.lcd_status) {
+            switch(cpt.lcd_status.toLowerCase()) {
+              case "meets":
+                lcdStatusClass = "text-green-600"
+                lcdStatusIcon = "✅"
+                break
+              case "partially meets":
+                lcdStatusClass = "text-yellow-600"
+                lcdStatusIcon = "⚠️"
+                break
+              case "does not meet":
+                lcdStatusClass = "text-red-600"
+                lcdStatusIcon = "❌"
+                break
+            }
+          }
+
+          // Create LCD status text
+          const lcdStatusText = cpt.lcd_status || "Not evaluated"
+          
+          // Create LCD code text
+          const lcdCodeText = cpt.lcd_code 
+            ? `✅ Yes – ${cpt.lcd_code}`
+            : "❌ No LCD required"
+
           item.innerHTML = `
-            <strong>${cpt.code}</strong>: ${cpt.description} <br/>
-            LCD Required: <strong>${cpt.requires_lcd ? "Yes" : "No"}</strong><br/>
-            ${cpt.lcd_code ? `LCD Code: <strong>${cpt.lcd_code}</strong>` : ""}
-            <hr/>
+            <div class="cpt-header">
+              <strong>CPT Code:</strong> ${cpt.code} – ${cpt.description}
+            </div>
+            <div class="cpt-details">
+              <p><strong>Requires LCD:</strong> ${lcdCodeText}</p>
+              <p><strong>LCD Status:</strong> ${lcdStatusIcon} <span class="${lcdStatusClass}">${lcdStatusText}</span></p>
+            </div>
           `
           cptContainer.appendChild(item)
         })

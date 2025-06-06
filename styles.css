@@ -227,12 +227,14 @@ footer {
 #cpt-results {
   background-color: var(--primary-light);
   border-radius: var(--radius);
+  padding: 1.5rem;
   margin-top: 1.5rem;
 }
 
 #cpt-results h2 {
   color: var(--primary-dark);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 1.25rem;
 }
 
 .raw-json {
@@ -291,4 +293,59 @@ footer {
   .side-panel {
     max-height: none;
   }
+}
+
+.cpt-box {
+  background-color: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cpt-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+.cpt-header {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.cpt-details {
+  font-size: 0.95rem;
+}
+
+.cpt-details p {
+  margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cpt-details strong {
+  min-width: 120px;
+  color: var(--text-light);
+}
+
+/* Status colors */
+.text-green-600 {
+  color: #059669;
+}
+
+.text-yellow-600 {
+  color: #d97706;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+.text-gray-600 {
+  color: #4b5563;
 }
