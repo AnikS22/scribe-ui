@@ -17,18 +17,38 @@
       <div class="card input-card">
         <form id="transcript-form">
           <div class="form-group">
-            <label for="transcript">Patient Transcript</label>
+            <label for="audio-file">Upload Audio File</label>
+            <div class="file-upload-container">
+              <input 
+                type="file" 
+                id="audio-file" 
+                name="audio-file" 
+                accept="audio/*"
+                class="file-input"
+              />
+              <div class="file-upload-info">
+                <p class="text-sm text-gray-600">Supported formats: MP3, WAV, M4A</p>
+                <p class="text-sm text-gray-600">Max file size: 25MB</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="transcript">Or Enter Transcript Manually</label>
             <textarea 
               id="transcript" 
               name="transcript" 
               rows="10" 
               placeholder="Paste patient transcript here..."
-              required></textarea>
+              ></textarea>
           </div>
-          <button type="submit" id="generate-btn" class="btn">
-            <span>Generate Note</span>
-            <div class="spinner" id="spinner"></div>
-          </button>
+
+          <div class="form-actions">
+            <button type="submit" id="generate-btn" class="btn">
+              <span>Process Audio/Transcript</span>
+              <div class="spinner" id="spinner"></div>
+            </button>
+          </div>
         </form>
       </div>
 
@@ -40,29 +60,44 @@
           <div class="card results-card main-panel">
             <h2>Clinical Note</h2>
             
-            <div class="section">
-              <h3>Chief Complaint</h3>
-              <div id="chief-complaint" class="content"></div>
+            <div class="section collapsible">
+              <div class="section-header" data-section="chief-complaint">
+                <h3>Chief Complaint</h3>
+                <button class="collapse-btn" aria-label="Toggle section">▼</button>
+              </div>
+              <div id="chief-complaint" class="content section-content"></div>
             </div>
             
-            <div class="section">
-              <h3>History of Present Illness</h3>
-              <div id="history" class="content"></div>
+            <div class="section collapsible">
+              <div class="section-header" data-section="history">
+                <h3>History of Present Illness</h3>
+                <button class="collapse-btn" aria-label="Toggle section">▼</button>
+              </div>
+              <div id="history" class="content section-content"></div>
             </div>
             
-            <div class="section">
-              <h3>Assessment</h3>
-              <div id="assessment" class="content"></div>
+            <div class="section collapsible">
+              <div class="section-header" data-section="assessment">
+                <h3>Assessment</h3>
+                <button class="collapse-btn" aria-label="Toggle section">▼</button>
+              </div>
+              <div id="assessment" class="content section-content"></div>
             </div>
             
-            <div class="section">
-              <h3>Plan</h3>
-              <div id="plan" class="content"></div>
+            <div class="section collapsible">
+              <div class="section-header" data-section="plan">
+                <h3>Plan</h3>
+                <button class="collapse-btn" aria-label="Toggle section">▼</button>
+              </div>
+              <div id="plan" class="content section-content"></div>
             </div>
 
-            <div class="section">
-              <div id="cpt-results" class="mt-6 text-sm bg-gray-100 p-4 rounded-lg shadow-sm">
-                <h2 class="text-lg font-semibold mb-2">Recommended CPT Codes</h2>
+            <div class="section collapsible">
+              <div class="section-header" data-section="cpt-results">
+                <h3>Recommended CPT Codes</h3>
+                <button class="collapse-btn" aria-label="Toggle section">▼</button>
+              </div>
+              <div id="cpt-results" class="section-content mt-6 text-sm bg-gray-100 p-4 rounded-lg shadow-sm">
                 <!-- JS will fill this -->
               </div>
             </div>
@@ -72,14 +107,20 @@
           <div class="card results-card side-panel">
             <h2>Raw Responses</h2>
             
-            <div class="section">
-              <h3>GPT Response</h3>
-              <pre id="gpt-response" class="raw-response hidden"></pre>
+            <div class="section collapsible">
+              <div class="section-header" data-section="gpt-response">
+                <h3>GPT Response</h3>
+                <button class="collapse-btn" aria-label="Toggle section">▼</button>
+              </div>
+              <pre id="gpt-response" class="raw-response section-content hidden"></pre>
             </div>
 
-            <div class="section">
-              <h3>API Response</h3>
-              <pre id="raw-json" class="raw-response hidden"></pre>
+            <div class="section collapsible">
+              <div class="section-header" data-section="raw-json">
+                <h3>API Response</h3>
+                <button class="collapse-btn" aria-label="Toggle section">▼</button>
+              </div>
+              <pre id="raw-json" class="raw-response section-content hidden"></pre>
             </div>
           </div>
         </div>

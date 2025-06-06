@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultsContainer = document.getElementById("results-container")
   const rawJsonContainer = document.getElementById("raw-json")
   const gptResponseContainer = document.getElementById("gpt-response")
+  const audioFileInput = document.getElementById("audio-file")
+  const transcriptInput = document.getElementById("transcript")
 
   // Result section elements
   const chiefComplaintEl = document.getElementById("chief-complaint")
@@ -15,21 +17,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // API configuration
   const API_CONFIG = {
-    baseUrl: "/api",  // Using Vercel relay endpoint
+    baseUrl: "/api",
     endpoint: "/relay",
     headers: {
       "Content-Type": "application/json"
     }
   }
 
+  // Initialize collapsible sections
+  document.querySelectorAll(".section-header").forEach(header => {
+    header.addEventListener("click", () => {
+      const section = header.closest(".section")
+      section.classList.toggle("collapsed")
+    })
+  })
+
+  // Handle file input change
+  audioFileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      // Clear transcript when file is selected
+      transcriptInput.value = ""
+      
+      // Validate file size (25MB limit)
+      if (file.size > 25 * 1024 * 1024) {
+        showError("File size exceeds 25MB limit")
+        audioFileInput.value = ""
+        return
+      }
+
+      // Validate file type
+      const validTypes = ["audio/mpeg", "audio/wav", "audio/x-m4a"]
+      if (!validTypes.includes(file.type)) {
+        showError("Invalid file type. Please upload MP3, WAV, or M4A files")
+        audioFileInput.value = ""
+        return
+      }
+    }
+  })
+
+  // Handle transcript input
+  transcriptInput.addEventListener("input", () => {
+    if (transcriptInput.value.trim()) {
+      audioFileInput.value = ""
+    }
+  })
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault()
 
-    // Get the transcript text
-    const transcript = document.getElementById("transcript").value.trim()
+    const file = audioFileInput.files[0]
+    const transcript = transcriptInput.value.trim()
 
-    if (!transcript) {
-      showError("Please enter a patient transcript.")
+    if (!file && !transcript) {
+      showError("Please upload an audio file or enter a transcript")
       return
     }
 
@@ -40,12 +81,28 @@ document.addEventListener("DOMContentLoaded", () => {
     hideRawResponses()
 
     try {
-      // Make API request through relay
-      const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoint}`, {
-        method: "POST",
-        headers: API_CONFIG.headers,
-        body: JSON.stringify({ transcript })
-      })
+      let response
+      
+      if (file) {
+        // Handle audio file upload
+        const formData = new FormData()
+        formData.append("file", file)
+
+        response = await fetch(`${API_CONFIG.baseUrl}/transcribe`, {
+          method: "POST",
+          headers: {
+            "X-API-Key": process.env.NEXT_PUBLIC_API_KEY || ""
+          },
+          body: formData
+        })
+      } else {
+        // Handle transcript submission
+        response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoint}`, {
+          method: "POST",
+          headers: API_CONFIG.headers,
+          body: JSON.stringify({ transcript })
+        })
+      }
 
       // Handle different response statuses
       if (response.status === 429) {
@@ -69,8 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // Display raw responses
       displayRawResponses(data)
     } catch (error) {
-      console.error("Error processing transcript:", error)
-      showError(error.message || "Failed to process transcript. Please try again.")
+      console.error("Error processing request:", error)
+      showError(error.message || "Failed to process request. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -80,11 +137,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isLoading) {
       generateBtn.disabled = true
       spinner.style.display = "block"
-      generateBtn.querySelector("span").textContent = "Processing..."
+      generateBtn.querySelector("span").textContent = file ? "Processing Audio..." : "Processing Transcript..."
+      
+      // Show loading overlay
+      const overlay = document.createElement("div")
+      overlay.className = "loading-overlay visible"
+      overlay.innerHTML = `
+        <div class="loading-message">
+          <div class="spinner"></div>
+          <p>${file ? "Transcribing audio..." : "Processing transcript..."}</p>
+        </div>
+      `
+      document.body.appendChild(overlay)
     } else {
       generateBtn.disabled = false
       spinner.style.display = "none"
-      generateBtn.querySelector("span").textContent = "Generate Note"
+      generateBtn.querySelector("span").textContent = "Process Audio/Transcript"
+      
+      // Remove loading overlay
+      const overlay = document.querySelector(".loading-overlay")
+      if (overlay) {
+        overlay.remove()
+      }
     }
   }
 
@@ -113,17 +187,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function displayResults(data) {
     try {
-      // Format and display each section with fallbacks
-      chiefComplaintEl.textContent = data.chief_complaint || "Not specified"
-      historyEl.textContent = data.history_of_present_illness || "Not specified"
-      assessmentEl.textContent = data.assessment || "Not specified"
-      planEl.textContent = data.plan || "Not specified"
+      // Only display non-null fields
+      const sections = {
+        "chief-complaint": data.chief_complaint,
+        "history": data.history_of_present_illness,
+        "assessment": data.assessment,
+        "plan": data.plan
+      }
+
+      // Update each section
+      Object.entries(sections).forEach(([id, content]) => {
+        const element = document.getElementById(id)
+        const section = element.closest(".section")
+        
+        if (content && content !== "Not specified") {
+          element.textContent = content
+          section.classList.remove("hidden")
+        } else {
+          section.classList.add("hidden")
+        }
+      })
 
       // Display CPT codes
       const cptContainer = document.getElementById("cpt-results")
-      cptContainer.innerHTML = "" // Clear previous
-
-      if (Array.isArray(data.recommended_cpt_codes)) {
+      const cptSection = cptContainer.closest(".section")
+      
+      if (Array.isArray(data.recommended_cpt_codes) && data.recommended_cpt_codes.length > 0) {
+        cptContainer.innerHTML = ""
         data.recommended_cpt_codes.forEach((cpt) => {
           const item = document.createElement("div")
           item.className = "cpt-box"
@@ -168,6 +258,9 @@ document.addEventListener("DOMContentLoaded", () => {
           `
           cptContainer.appendChild(item)
         })
+        cptSection.classList.remove("hidden")
+      } else {
+        cptSection.classList.add("hidden")
       }
 
       // Show results container
