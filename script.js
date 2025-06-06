@@ -126,15 +126,50 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Array.isArray(data.recommended_cpt_codes)) {
         data.recommended_cpt_codes.forEach((cpt) => {
           const item = document.createElement("div")
-          item.className = "cpt-code-item"
+          item.className = "cpt-box"
+          
+          // Determine LCD status class
+          let lcdStatusClass = "text-gray-600" // default
+          let lcdStatusIcon = "❓"
+          
+          if (cpt.lcd_status) {
+            switch(cpt.lcd_status.toLowerCase()) {
+              case "meets":
+                lcdStatusClass = "text-green-600"
+                lcdStatusIcon = "✅"
+                break
+              case "partially meets":
+                lcdStatusClass = "text-yellow-600"
+                lcdStatusIcon = "⚠️"
+                break
+              case "does not meet":
+                lcdStatusClass = "text-red-600"
+                lcdStatusIcon = "❌"
+                break
+            }
+          }
+
           item.innerHTML = `
-            <strong>${cpt.code}</strong>: ${cpt.description} <br/>
-            LCD Required: <strong>${cpt.requires_lcd ? "Yes" : "No"}</strong><br/>
-            ${cpt.lcd_code ? `LCD Code: <strong>${cpt.lcd_code}</strong>` : ""}
-            <hr/>
+            <div class="cpt-box-content">
+              <p class="cpt-code">
+                <strong>CPT Code:</strong> ${cpt.code} – ${cpt.description}
+              </p>
+              <p class="lcd-requirement">
+                <strong>Requires LCD:</strong> 
+                ${cpt.requires_lcd ? `✅ Yes${cpt.lcd_code ? ` – ${cpt.lcd_code}` : ''}` : '❌ No'}
+              </p>
+              ${cpt.requires_lcd ? `
+                <p class="lcd-status">
+                  <strong>LCD Status:</strong> 
+                  ${lcdStatusIcon} <span class="${lcdStatusClass}">${cpt.lcd_status || 'Not Evaluated'}</span>
+                </p>
+              ` : ''}
+            </div>
           `
           cptContainer.appendChild(item)
         })
+      } else {
+        cptContainer.innerHTML = '<p class="no-cpt">No CPT codes recommended</p>'
       }
 
       // Show results container
